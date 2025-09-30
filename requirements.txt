@@ -1,14 +1,27 @@
-# Core do bot
-ccxt>=4.2.23
-python-dotenv>=1.0.1
+# Core
+streamlit>=1.50
+pandas>=2.3
+numpy>=2.3
+plotly>=6.3
 
-# Banco de dados
-supabase>=2.3.4
+# Trading
+ccxt>=4.5
 
-# Painéis e análise
-streamlit>=1.36.0
-plotly>=5.24.1
-pandas>=2.2.3
+# Supabase
+supabase>=2.20
+postgrest>=2.20
+storage3>=2.20
+realtime>=2.20
+supabase-auth>=2.20
+supabase-functions>=2.20
 
-# Utilitários
-requests>=2.32.3
+# AI / API
+openai>=1.109
+python-dotenv>=1.0
+
+# Extras úteis
+tqdm>=4.67
+GitPython>=3.1
+pyarrow>=21.0
+altair>=5.5
+pydeck>=0.9
