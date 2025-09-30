@@ -1,18 +1,42 @@
 # Python venv
 .venv/
 venv/
+ENV/
+env/
 
 # Cache/compilados
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
-*.db
+*.py[cod]
+*$py.class
 
 # Logs
 *.log
 
-# Configs locais
+# Configs locais / credenciais
 .env
+*.env
 *.sqlite3
 
+# macOS / Windows lixos
+.DS_Store
+Thumbs.db
+
+# IDEs / editores
+.vscode/
+.idea/
+*.swp
+
+# Dados temporários / experimentos
+*.db
+*.parquet
+*.csv
+*.xlsx
+
+# Relatórios / resultados de backtest
+/backtests/
+*.png
+*.pdf
+*.html
+
+# Streamlit cache
+.streamlit/
