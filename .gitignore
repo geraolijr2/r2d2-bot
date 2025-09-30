@@ -1,0 +1,18 @@
+# Python venv
+.venv/
+venv/
+
+# Cache/compilados
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+
+# Logs
+*.log
+
+# Configs locais
+.env
+*.sqlite3
+

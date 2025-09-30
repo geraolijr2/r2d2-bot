@@ -1,0 +1,14 @@
+# Core do bot
+ccxt>=4.2.23
+python-dotenv>=1.0.1
+
+# Banco de dados
+supabase>=2.3.4
+
+# Painéis e análise
+streamlit>=1.36.0
+plotly>=5.24.1
+pandas>=2.2.3
+
+# Utilitários
+requests>=2.32.3
