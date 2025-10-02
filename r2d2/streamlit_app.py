@@ -827,13 +827,38 @@ def filter_rank_memecoins(markets: list[dict], min_vol_usd: float = 1e6, top_n: 
     candidates.sort(key=lambda d: d.get("vol24h_usd", 0.0), reverse=True)
     return candidates[:int(top_n)]
 
-@st.cache_data(show_spinner=True)
+@st.cache_data(show_spinner=True, ttl=600)
 def get_bars_multi_cached(symbols: tuple[str, ...], timeframe: str, start: str, end: str):
-    """Baixa OHLCV para vários símbolos (reutiliza seu load_historical)"""
+    """
+    Baixa OHLCV para vários símbolos (usa load_historical).
+    - Normaliza os símbolos antes de chamar o CCXT.
+    - Ignora automaticamente os que não retornarem candles ou derem erro.
+    - Mostra aviso no Streamlit com a lista dos símbolos ignorados.
+    """
+    from r2d2.run_backtest import normalize_symbol, load_historical
     data = {}
+    skipped = []
+
     for s in symbols:
-        data[s] = load_historical(symbol=s, timeframe=timeframe, start_date=start, end_date=end)
+        try:
+            bars = load_historical(symbol=s, timeframe=timeframe, start_date=start, end_date=end)
+            if not bars:
+                print(f"⚠️ Nenhum candle retornado para {s} – ignorando.")
+                skipped.append(s)
+                data[s] = []
+                continue
+            data[s] = bars
+        except Exception as e:
+            print(f"⚠️ Erro ao carregar {s}: {e} – ignorando.")
+            skipped.append(s)
+            data[s] = []
+
+    if skipped:
+        st.warning(f"⚠️ Os seguintes símbolos foram ignorados (não suportados pela Bybit ou sem dados): {', '.join(skipped)}")
+
     return data
+
+
 
 # ========= Layout =========
 tab_run, tab_opt, tab_portfolio, tab_history, tab_help = st.tabs(

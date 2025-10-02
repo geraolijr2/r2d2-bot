@@ -7,11 +7,27 @@ from r2d2.strategy_manager import StrategyManager
 from r2d2.backtester import Backtester
 from r2d2.bybit_exchange import BybitCCXT
 
+
+def normalize_symbol(symbol: str) -> str:
+    """
+    Normaliza símbolos Bybit no formato CCXT.
+    Exemplo:
+      'BTC/USDT:USDT' -> 'BTC/USDT'
+      'ETH/USDT:USDT' -> 'ETH/USDT'
+    """
+    if ":USDT" in symbol:
+        return symbol.split(":")[0]  # pega só a parte antes do ':'
+    return symbol
+
 def load_historical(symbol="BTC/USDT:USDT", timeframe="1m",
                     start_date="2025-09-01", end_date="2025-09-30"):
     bybit = ccxt.bybit()
     bybit.set_sandbox_mode(False)  # dados reais
     bybit.options["defaultType"] = "linear"
+
+    norm_symbol = normalize_symbol(symbol)
+    print(f"🔎 Baixando {symbol} (normalizado: {norm_symbol}), timeframe={timeframe}, "
+          f"de {start_date} até {end_date}")
 
     since = int(datetime.fromisoformat(start_date).replace(tzinfo=timezone.utc).timestamp() * 1000)
     until = int(datetime.fromisoformat(end_date).replace(tzinfo=timezone.utc).timestamp() * 1000)
@@ -22,8 +38,9 @@ def load_historical(symbol="BTC/USDT:USDT", timeframe="1m",
 
     now = since
     while now < until:
-        candles = bybit.fetch_ohlcv(symbol, timeframe, since=now, limit=limit)
+        candles = bybit.fetch_ohlcv(norm_symbol, timeframe, since=now, limit=limit)
         if not candles:
+            print(f"⚠️ Nenhum candle retornado para {norm_symbol} a partir de {datetime.utcfromtimestamp(now/1000)}")
             break
 
         for ts, o, h, l, c, v in candles:
@@ -40,12 +57,14 @@ def load_historical(symbol="BTC/USDT:USDT", timeframe="1m",
 
         last_ts = candles[-1][0]
         now = last_ts + timeframe_ms
-        print(f"✅ Já baixados {len(all_candles)} candles... até {datetime.utcfromtimestamp(last_ts/1000)}")
+        print(f"✅ {norm_symbol}: já baixados {len(all_candles)} candles... "
+              f"até {datetime.utcfromtimestamp(last_ts/1000)}")
 
         time.sleep(bybit.rateLimit / 1000)
 
+    print(f"📊 Total de candles carregados para {norm_symbol}: {len(all_candles)}")
     return all_candles
-
+    
 def main():
     parser = argparse.ArgumentParser(description="Rodar backtest do R2D2")
     parser.add_argument("--symbol", type=str, default="BTC/USDT:USDT")
